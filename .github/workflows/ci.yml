@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Backend unit tests (Vitest)
+        run: npm run -w backend test
+        env:
+          NODE_ENV: test
+          HOST: 127.0.0.1
+          PORT: 3333
+          LOG_LEVEL: silent
+          APP_KEY: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_DATABASE: app
+          JWT_SECRET: test
+          JWT_EXPIRES_IN: 1h
+
+      - name: Backend integration tests (Japa)
+        run: npm run -w backend test:integration
+        env:
+          NODE_ENV: test
+          HOST: 127.0.0.1
+          PORT: 3333
+          LOG_LEVEL: silent
+          APP_KEY: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_DATABASE: app
+          JWT_SECRET: test
+          JWT_EXPIRES_IN: 1h
+
+      - name: Frontend tests (Vitest)
+        run: npm run -w frontend test
+
+      - name: Build
+        run: npm run build
+

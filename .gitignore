@@ -1,0 +1,17 @@
+**/node_modules
+**/build
+**/dist
+**/.adonisjs
+**/.env
+**/.env.*
+**/.idea
+**/.vscode
+**/*.log
+**/.DS_Store
+**/.nyc_output
+**/coverage
+**/.cache
+**/.vite
+
+# Docker
+postgres-data
