@@ -9,6 +9,6 @@
 
 import router from '@adonisjs/core/services/router'
 
-import { registerRoutes } from '#src/interfaces/routes/index.js'
+import { registerRoutes } from '#src/interfaces/routes/index'
 
 registerRoutes(router)
